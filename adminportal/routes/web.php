@@ -12,10 +12,13 @@ use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Middleware\EnsureEmailIsVerifiedIfEnabled;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::view('/email/verify', 'auth.verify-email')->name('verification.notice');
 
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login.show');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
@@ -31,13 +34,13 @@ Route::post('/2fa/disable', [TwoFactorController::class, 'disable'])->name('2fa.
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
 Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->name('social.callback');
 
-Route::middleware([])->group(function () {
+Route::middleware([EnsureEmailIsVerifiedIfEnabled::class])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/avatar', [ProfileController::class, 'avatar'])->name('profile.avatar');
 });
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware([EnsureEmailIsVerifiedIfEnabled::class])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/registrations', [DashboardController::class, 'registrations'])->name('dashboard.registrations');
 
