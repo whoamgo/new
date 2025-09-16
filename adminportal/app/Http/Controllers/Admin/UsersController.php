@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Services\ActivityLogger;
 
 class UsersController extends Controller
 {
@@ -50,6 +51,37 @@ class UsersController extends Controller
 			$roleIds = Role::whereIn('name', $data['roles'])->pluck('id');
 			$user->roles()->sync($roleIds);
 		}
+		ActivityLogger::log('user.created', 'User created', ['user_id' => $user->id]);
 		return response()->json(['message' => 'User created']);
+	}
+
+	public function update(Request $request, User $user)
+	{
+		$data = $request->validate([
+			'name' => 'required|string|max:255',
+			'username' => 'required|string|max:255|unique:users,username,'.$user->id,
+			'email' => 'required|email|max:255|unique:users,email,'.$user->id,
+			'password' => 'nullable|string|min:8',
+			'roles' => 'array'
+		]);
+		$user->fill($data);
+		if (!empty($data['password'])) {
+			$user->password = Hash::make($data['password']);
+		}
+		$user->save();
+		if (!empty($data['roles'])) {
+			$roleIds = Role::whereIn('name', $data['roles'])->pluck('id');
+			$user->roles()->sync($roleIds);
+		}
+		ActivityLogger::log('user.updated', 'User updated', ['user_id' => $user->id]);
+		return response()->json(['message' => 'User updated']);
+	}
+
+	public function destroy(User $user)
+	{
+		$userId = $user->id;
+		$user->delete();
+		ActivityLogger::log('user.deleted', 'User deleted', ['user_id' => $userId]);
+		return response()->json(['message' => 'User deleted']);
 	}
 }

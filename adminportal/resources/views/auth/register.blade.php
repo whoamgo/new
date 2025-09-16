@@ -27,6 +27,9 @@
 						<label class="form-label">Confirm Password</label>
 						<input type="password" name="password_confirmation" class="form-control" required>
 					</div>
+					<div class="mb-3">
+						<div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}"></div>
+					</div>
 					<button class="btn btn-primary" type="submit">Create Account</button>
 				</form>
 				<div class="mt-3">
@@ -36,4 +39,5 @@
 		</div>
 	</div>
 </div>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection

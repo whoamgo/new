@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
+use App\Services\Recaptcha;
+use App\Services\ActivityLogger;
 
 class RegisterController extends Controller
 {
@@ -24,7 +26,13 @@ class RegisterController extends Controller
 			'username' => ['required', 'string', 'max:255', 'unique:users,username'],
 			'email' => ['required', 'email', 'max:255', 'unique:users,email'],
 			'password' => ['required', 'string', 'min:8', 'confirmed'],
+			'g-recaptcha-response' => ['nullable', 'string']
 		]);
+
+		$recaptchaEnabled = filter_var(Setting::where('key','recaptcha_enabled')->value('value'), FILTER_VALIDATE_BOOLEAN);
+		if ($recaptchaEnabled && !Recaptcha::verify($data['g-recaptcha-response'] ?? null)) {
+			return response()->json(['message' => 'reCAPTCHA verification failed'], 422);
+		}
 
 		$user = User::create([
 			'name' => $data['name'],
@@ -39,6 +47,7 @@ class RegisterController extends Controller
 		}
 
 		Auth::login($user);
+		ActivityLogger::log('auth.register', 'User registered', ['user_id' => $user->id]);
 		return response()->json(['redirect' => route('admin.dashboard')]);
 	}
 }

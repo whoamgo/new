@@ -19,6 +19,9 @@
 						<input class="form-check-input" type="checkbox" name="remember" value="1" id="remember">
 						<label class="form-check-label" for="remember">Remember me</label>
 					</div>
+					<div class="mb-3">
+						<div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}"></div>
+					</div>
 					<button class="btn btn-primary" type="submit">Login</button>
 				</form>
 				<div class="mt-3">
@@ -28,4 +31,5 @@
 		</div>
 	</div>
 </div>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 @endsection

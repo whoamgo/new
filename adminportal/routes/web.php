@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\BackupController;
 use App\Http\Controllers\Admin\ActivityController;
+use App\Http\Controllers\Admin\ImpersonationController;
+use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
@@ -20,6 +22,10 @@ Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::get('/register', [RegisterController::class, 'showRegister'])->name('register.show');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+Route::get('/2fa', [TwoFactorController::class, 'show'])->name('2fa.show');
+Route::post('/2fa/enable', [TwoFactorController::class, 'enable'])->name('2fa.enable');
+Route::post('/2fa/disable', [TwoFactorController::class, 'disable'])->name('2fa.disable');
 
 // Social login placeholders
 Route::get('/auth/{provider}', [SocialAuthController::class, 'redirect'])->name('social.redirect');
@@ -37,7 +43,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/users', [UsersController::class, 'index'])->name('users.index');
     Route::post('/users', [UsersController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/impersonate', function () { return redirect('/'); })->name('users.impersonate');
+    Route::post('/users/{user}', [UsersController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UsersController::class, 'destroy'])->name('users.destroy');
+
+    Route::get('/users/{user}/impersonate', [ImpersonationController::class, 'start'])->name('users.impersonate');
+    Route::get('/impersonate/stop', [ImpersonationController::class, 'stop'])->name('impersonate.stop');
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'save'])->name('settings.save');
