@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\ActivityController;
 use App\Http\Controllers\Admin\ImpersonationController;
 use App\Http\Controllers\TwoFactorController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Client\CampaignController as ClientCampaignController;
 use App\Http\Middleware\EnsureEmailIsVerifiedIfEnabled;
 
 Route::get('/', function () {
@@ -59,4 +60,19 @@ Route::prefix('admin')->name('admin.')->middleware([EnsureEmailIsVerifiedIfEnabl
     Route::post('/backups', [BackupController::class, 'run'])->name('backups.run');
 
     Route::get('/activity', [ActivityController::class, 'index'])->name('activity.index');
+});
+
+// Client campaign wizard
+Route::prefix('client/campaign')->name('client.campaign.')->group(function () {
+    Route::get('/step-1', [ClientCampaignController::class, 'step1Show'])->name('step1.show');
+    Route::post('/step-1', [ClientCampaignController::class, 'step1Store'])->name('step1.store');
+
+    Route::get('/step-2', [ClientCampaignController::class, 'step2Show'])->name('step2.show');
+    Route::post('/step-2', [ClientCampaignController::class, 'step2Store'])->name('step2.store');
+
+    Route::get('/step-3', [ClientCampaignController::class, 'step3Show'])->name('step3.show');
+    Route::post('/step-3', [ClientCampaignController::class, 'step3Store'])->name('step3.store');
+
+    Route::get('/step-4', [ClientCampaignController::class, 'step4Show'])->name('step4.show');
+    Route::post('/step-4', [ClientCampaignController::class, 'step4Store'])->name('step4.store');
 });
